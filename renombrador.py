@@ -1,13 +1,13 @@
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 import os
 import ctypes
 import functools
 from pathlib import Path
 
-# Pedir al usuario la ruta y el nombre para los comics
-rute = Path(input("Ingrese la ruta donde se encuentran los comics: "))
-name = input("Ingrese el nombre que desea para los comics: ")
+# Pedir al usuario la ruta y el nombre para los documentos
+rute = Path(input("Ingrese la ruta donde se encuentran los archivos: "))
+name = input("Ingrese el nombre que desea para los archivos: ")
 
 try:
     if rute.exists():
@@ -25,9 +25,9 @@ try:
             # Ordenando los nombres viejos de forma natural gracias a la conversón
             old_names.sort(key=natSort)          
 
-            # Capturar los nombres viejos y generar los nuevos nombres
+            # Capturar los nombres viejos y generar los nuevos nombres 
             for i in range(len(old_names)): 
-                new_names.append(f"{name} #{i+1}.cbr")
+                new_names.append(f"{name} #{i+1}.{old_names[i].split('.')[-1]}")
                 
             # Renombrando los archivos
             try:

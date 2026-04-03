@@ -1,6 +1,6 @@
-# Renombrador Masivo de Comics (Windows) — v0.1.0
+# Renombrador Masivo (Windows) — v0.1.1
 
-¡Bienvenido! Este proyecto `Renombrador Masivo` es un script en Python diseñado para renombrar varios archivos de cómic (`.cbr` u otros en un futuro) en una carpeta con un nombre estándar y numeración secuencial.
+¡Bienvenido! Este proyecto `Renombrador Masivo` es un script en Python diseñado para renombrar varios archivos en una carpeta con un nombre estándar y numeración secuencial.
 
 ## 📝 Contexto
 
@@ -8,7 +8,7 @@ Pos resulta que estaba revisando mi biblioteca 100% legal y cuando lo descargué
 
 ## 🔧 Qué hace
 
-- Pide la ruta de la carpeta donde están los archivos con cómics.
+- Pide la ruta de la carpeta donde están los archivos con archivos (ejemplo comics).
 - Pide el nombre base para los archivos.
 - Ordena los archivos en orden natural (1, 2, 10 en vez de 1, 10, 2).
 - Renombra cada archivo en la carpeta a: `NombreBase #1.cbr`, `NombreBase #2.cbr`, etc.
@@ -35,7 +35,6 @@ python renombrador.py
 
 ## 🧠 Consideraciones
 
-- No verifica extensiones o si los archivos ya tienen la extensión `.cbr`; renombra todo en la carpeta.
 - Si hay errores en `os.rename`, mostrará el error y seguirá (o termina con excepción según el caso).
 
 ## 💡 Mejora sugerida
