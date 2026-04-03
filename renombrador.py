@@ -1,4 +1,4 @@
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 import os
 import ctypes
@@ -23,13 +23,24 @@ try:
 
         # Pedir al usuario el número de inicio y final para la numeración
         try:
-            start = int(input("Ingrese el número de inicio para la numeración: "))
-            end = int(input("Ingrese el número final para la numeración: "))
+            try:
+                selection = input("Pulse 1 para seleccionar todos los archivos o pulse 2 para seleccionar un rango específico: ")
 
-            if start > end or start < 0 or end < 0 or end - start >= len(old_names):
-                print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
+                if selection == "1":
+                    start = 1
+                    end = len(old_names)
+                else:
+                    start = int(input("Ingrese el número de inicio para la numeración: "))
+                    end = int(input("Ingrese el número final para la numeración: "))
+
+                if start > end or start < 0 or end < 0 or end - start >= len(old_names):
+                    print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
+                    exit()
+            
+            except ValueError:
+                print("Debe ingresar un número entero para la numeración.")
                 exit()
-    
+        
         except ValueError:
             print("Debe ingresar un número entero para la numeración.")
             exit()
