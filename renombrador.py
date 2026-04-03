@@ -1,4 +1,4 @@
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 import os
 import ctypes
@@ -19,8 +19,8 @@ try:
     start = int(input("Ingrese el número de inicio para la numeración: "))
     end = int(input("Ingrese el número final para la numeración: "))
 
-    if start > end or start < 0 or end < 0:
-        print("El número de inicio debe ser menor o igual al número final.")
+    if start > end or start < 0 or end < 0 or end - start >= len(os.listdir(rute)):
+        print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
         exit()
     
 except ValueError:
