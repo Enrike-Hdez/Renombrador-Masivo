@@ -1,4 +1,4 @@
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 import os
 import ctypes
@@ -14,25 +14,25 @@ except Exception as e:
     print(f"Error al ingresar la ruta o el nombre: {e}")
     exit()
 
-# Pedir al usuario el número de inicio y final para la numeración
-try:
-    start = int(input("Ingrese el número de inicio para la numeración: "))
-    end = int(input("Ingrese el número final para la numeración: "))
-
-    if start > end or start < 0 or end < 0 or end - start >= len(os.listdir(rute)):
-        print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
-        exit()
-    
-except ValueError:
-    print("Debe ingresar un número entero para la numeración.")
-    exit()
-
 # Parte principal del programa
 try:
     if rute.exists():
 
         # Lista para almacenar los nombres
         old_names = [f for f in os.listdir(rute) if os.path.isfile(os.path.join(rute, f))]
+
+        # Pedir al usuario el número de inicio y final para la numeración
+        try:
+            start = int(input("Ingrese el número de inicio para la numeración: "))
+            end = int(input("Ingrese el número final para la numeración: "))
+
+            if start > end or start < 0 or end < 0 or end - start >= len(old_names):
+                print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
+                exit()
+    
+        except ValueError:
+            print("Debe ingresar un número entero para la numeración.")
+            exit()
 
         # Función para transformar la función de comparación de StrCmpLogicalW
         # en una función que python pueda usar para ordenar de forma natural
@@ -51,7 +51,8 @@ try:
                     print("Se ha alcanzado el número final para la numeración.")
                     exit()
 
-                new_name = f"{name} #{i+start}{os.path.splitext(old_names[i])[1]}"
+                ext = os.path.splitext(old_names[i])[1]
+                new_name = f"{name} #{i+start}{ext}"
                 os.rename(os.path.join(rute, old_names[i]), os.path.join(rute, new_name))
                 
                 
