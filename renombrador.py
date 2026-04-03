@@ -1,4 +1,4 @@
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 import os
 import ctypes
@@ -53,7 +53,14 @@ try:
 
                 ext = os.path.splitext(old_names[i])[1]
                 new_name = f"{name} #{i+start}{ext}"
-                os.rename(os.path.join(rute, old_names[i]), os.path.join(rute, new_name))
+                new_path = os.path.join(rute, new_name)
+
+                if os.path.exists(new_path):
+                    print(f"El archivo '{new_name}' ya existe. No se puede renombrar '{old_names[i]}'.")
+                    pass
+                
+                else:
+                    os.rename(os.path.join(rute, old_names[i]), new_path)
                 
                 
         except Exception as e:
