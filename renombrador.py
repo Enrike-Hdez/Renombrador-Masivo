@@ -14,7 +14,7 @@ try:
 
             # Listas para almacenar los nombres viejos y nuevos
             new_names = []
-            old_names = os.listdir(rute)      
+            old_names = [f for f in os.listdir(rute) if os.path.isfile(os.path.join(rute, f))]
 
             # Función para transformar la función de comparación de StrCmpLogicalW
             # en una función que python pueda usar para ordenar de forma natural
@@ -25,10 +25,10 @@ try:
             # Ordenando los nombres viejos de forma natural gracias a la conversón
             old_names.sort(key=natSort)          
 
-            # Capturar los nombres viejos y generar los nuevos nombres 
-            for i in range(len(old_names)): 
-                new_names.append(f"{name} #{i+1}.{old_names[i].split('.')[-1]}")
-                
+            # Generando los nombres nuevos
+            for i in range(len(old_names)):
+                new_names.append(f"{name} #{i+1}{os.path.splitext(old_names[i])[1]}")
+
             # Renombrando los archivos
             try:
                 for i in range(len(old_names)):
