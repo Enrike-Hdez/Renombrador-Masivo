@@ -6,7 +6,6 @@ from pathlib import Path
 __version__ = "0.3.0"
 
 # Obtener la ruta y el nombre para los documentos del usuario
-
 def get_user_input():
     try:
         rute = Path(input("Ingrese la ruta donde se encuentran los archivos: "))
@@ -17,7 +16,6 @@ def get_user_input():
     except Exception as e:
         print(f"Error al ingresar la ruta: {e}")
         exit()
-
 
 # Obtener los nombres de los archivos en la ruta dada filtando sólo los archivos
 def get_archives(rute):
@@ -63,6 +61,14 @@ def get_range(old_names):
     except ValueError as e:
         print("Debe ingresar un número natural.")
         exit()
+        
+# Verificación para el usuario
+def verify():
+    verify = input("¿Desea continuar con el proceso de renombrado? (s/n): ")
+
+    if verify.lower() != 's':
+        print("Proceso de renombrado cancelado por el usuario.")
+        exit()
 
 # Función para transformar la función de comparación de StrCmpLogicalW
 # en una función que python pueda usar para ordenar de forma natural
@@ -75,7 +81,6 @@ def sort_natural(old_names):
     old_names_sorted = sorted(old_names, key=natSort)
 
     return old_names_sorted
-
 
 # Renombrando los archivos
 def rename_archives(rute, name, old_names_sorted, start, end):
@@ -106,6 +111,7 @@ def main():
     rute, name = get_user_input()
     old_names = get_archives(rute)
     start, end = get_range(old_names)
+    verify()
     old_names_sorted = sort_natural(old_names)
     rename_archives(rute, name, old_names_sorted, start, end)
 
