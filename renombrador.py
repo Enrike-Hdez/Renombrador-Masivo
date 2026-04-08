@@ -3,7 +3,7 @@ import ctypes
 import functools
 from pathlib import Path
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
