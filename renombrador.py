@@ -1,9 +1,11 @@
 import os
 import ctypes
 import functools
+import shutil
+from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
@@ -31,6 +33,7 @@ def get_archives(rute):
         
     except Exception as e:
         print(f"Error al obtener los archivos: {e}")
+        return[]
 
 # Verificar que el rango de numeración sea correcto
 def check_range(start, end, old_names):
@@ -79,6 +82,43 @@ def get_range(old_names):
 
 
 
+# Crea una copia de seguridad a los archivos que se van a copiar
+def backup(rute):
+    while True:
+        try:
+            decision = input("¿Desea crear una copia de seguridad de los archivos antes de renombrarlos? (Y/N): ").lower()
+
+            if decision.lower() == "y":
+                try:
+                    now = datetime.now()
+                    formated_now = now.strftime("backup %d-%m-%Y %H-%M")
+                    copied_rute = os.path.join(rute, formated_now)
+                    copied_files = shutil.copytree(rute, copied_rute)
+
+                    return
+
+                except FileNotFoundError:
+                    print("Error: El archivo de origen no fue encontrado.")
+                
+                except PermissionError:
+                    print("Error: Permiso denegado.")
+
+                except Exception as e:
+                    print(f"Ocurrió un error inesperado: {e}")
+
+            elif decision.lower() == "n":
+                print("Ha decidido no crear una copia de seguridad.")
+                return
+
+            else:
+                print("Campo inválido, debe ingresar (Y/N).")
+                continue
+        
+        except Exception as e:
+            print(f"Error desconocido: {e}") 
+
+
+
 # Verificación para el usuario
 def verify(rute, name):
     while True:
@@ -95,7 +135,7 @@ def verify(rute, name):
         
         else: 
             print("Campo inválido, debe ingresar (Y/N).")
-
+           
 
 
 # Función para transformar la función de comparación de StrCmpLogicalW
@@ -119,7 +159,7 @@ def rename_archives(rute, name, old_names_sorted, start, end):
 
             if (i + start) > end:
                 print("Se ha alcanzado el número final para la numeración.")
-                exit()
+                return
 
             ext = os.path.splitext(old_names_sorted[i])[1]
             new_name = f"{name} #{i+start}{ext}"
@@ -127,7 +167,7 @@ def rename_archives(rute, name, old_names_sorted, start, end):
 
             if os.path.exists(new_path):
                 print(f"El archivo '{new_name}' ya existe. No se puede renombrar.")
-                pass
+                continue
                     
             else:
                 os.rename(os.path.join(rute, old_names_sorted[i]), new_path)
@@ -147,7 +187,8 @@ def main():
 
         if verify(rute, name):
             break
-
+    
+    backup(rute)
     old_names_sorted = sort_natural(old_names)
     rename_archives(rute, name, old_names_sorted, start, end)
 
