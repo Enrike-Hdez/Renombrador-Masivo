@@ -3,72 +3,100 @@ import ctypes
 import functools
 from pathlib import Path
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
-    try:
-        rute = Path(input("Ingrese la ruta donde se encuentran los archivos: "))
-        name = input("Ingrese el nombre que desea para los archivos: ")
+    while True:
+        try:
+            rute = Path(input("Ingrese la ruta donde se encuentran los archivos: "))
+            name = input("Ingrese el nombre que desea para los archivos: ")
 
-        return rute, name
+            if rute.exists():
+                return rute, name
+            
+            print("Ha ocurrido un error al ingresar la ruta")
 
-    except Exception as e:
-        print(f"Error al ingresar la ruta: {e}")
-        exit()
+        except Exception as e:
+            print(f"Error desconocido: {e}")
+
+
 
 # Obtener los nombres de los archivos en la ruta dada filtando sólo los archivos
 def get_archives(rute):
     try:
-        if rute.exists():
-            old_names = [f for f in os.listdir(rute) if os.path.isfile(os.path.join(rute, f))]
+        old_names = [f for f in os.listdir(rute) if os.path.isfile(os.path.join(rute, f))]
 
-            return old_names
+        return old_names
         
     except Exception as e:
-        print(f"Error al acceder a la ruta: {e}")
-        exit()
+        print(f"Error al obtener los archivos: {e}")
 
 # Verificar que el rango de numeración sea correcto
 def check_range(start, end, old_names):
-    if start > end or start < 0 or end < 0 or end - start >= len(old_names):
-        print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
-        exit()
+        if start > end or start < 0 or end < 0 or end - start >= len(old_names):
+            print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
+
+            return False
+
+        return True
+
+
 
 # Obtener el rango de numeración para los archivos
 def get_range(old_names):
-    try:
-        selection = input("Pulse 1 para seleccionar todos los archivos o pulse 2 para seleccionar un rango específico: ")
+    while True:
+        try:
+            selection = input("Pulse 1 para seleccionar todos los archivos o pulse 2 para seleccionar un rango específico: ")
 
-        if selection == "1":
-            start = 1
-            end = len(old_names)
-            check_range(start, end, old_names)
+            if selection == "1":
+                start = 1
+                end = len(old_names)
 
-            return start, end
+                if check_range(start, end, old_names):
+                    return start, end
 
-        elif selection == "2":
-            start = int(input("Ingrese el número de inicio para la numeración: "))
-            end = int(input("Ingrese el número final para la numeración: "))
-            check_range(start, end, old_names)
+            elif selection == "2":
+                while True:
+                    try:
+                        start = int(input("Ingrese el número de inicio para la numeración: "))
+                        end = int(input("Ingrese el número final para la numeración: "))
 
-            return start, end
-        
-        else:
-            print("Selección no válida. Por favor, ingrese 1 o 2.")
-            exit()
-            
-    except ValueError as e:
-        print("Debe ingresar un número natural.")
-        exit()
-        
+                        if check_range(start, end, old_names):
+                            return start, end
+                    
+                    except Exception as e:
+                        print(f"Fallo al rellenar el campo: {e}")
+                        continue
+                
+            else:
+                print("Selección no válida. Por favor, ingrese 1 ó 2.")
+                continue
+
+        except ValueError as e:
+            print(f"Error desconocido: {e}")
+            continue
+
+
+
 # Verificación para el usuario
-def verify():
-    verify = input("¿Desea continuar con el proceso de renombrado? (s/n): ")
+def verify(rute, name):
+    while True:
+        print(f"Usted va a cambiar los nombres de la ruta {rute} a {name}.")
+        verify = input("¿Está seguro que desea continuar con el proceso de renombrado? (Y/N): ")
+    
+        if verify.lower() == 'y':
+            return True
+            
+        elif verify.lower() == 'n':
+            print("Ha decidido no continuar")
 
-    if verify.lower() != 's':
-        print("Proceso de renombrado cancelado por el usuario.")
-        exit()
+            return False
+        
+        else: 
+            print("Campo inválido, debe ingresar (Y/N).")
+
+
 
 # Función para transformar la función de comparación de StrCmpLogicalW
 # en una función que python pueda usar para ordenar de forma natural
@@ -82,9 +110,10 @@ def sort_natural(old_names):
 
     return old_names_sorted
 
+
+
 # Renombrando los archivos
 def rename_archives(rute, name, old_names_sorted, start, end):
-    
     try:
         for i in range(len(old_names_sorted)):         
 
@@ -105,13 +134,20 @@ def rename_archives(rute, name, old_names_sorted, start, end):
                     
     except Exception as e:
         print(f"Error al renombrar los archivos: {e}")
-        
-# main
+
+
+
+
+
 def main():
-    rute, name = get_user_input()
-    old_names = get_archives(rute)
-    start, end = get_range(old_names)
-    verify()
+    while True:
+        rute, name = get_user_input()
+        old_names = get_archives(rute)
+        start, end = get_range(old_names)
+
+        if verify(rute, name):
+            break
+
     old_names_sorted = sort_natural(old_names)
     rename_archives(rute, name, old_names_sorted, start, end)
 
