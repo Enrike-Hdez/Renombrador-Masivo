@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
@@ -34,6 +34,8 @@ def get_archives(rute):
     except Exception as e:
         print(f"Error al obtener los archivos: {e}")
         return[]
+
+
 
 # Verificar que el rango de numeración sea correcto
 def check_range(start, end, old_names):
@@ -82,18 +84,46 @@ def get_range(old_names):
 
 
 
+# Verificación para el usuario
+def verify(rute, name):
+    while True:
+        print(f"Usted va a cambiar los nombres de la ruta {rute} a {name}.")
+    
+        verify = input("¿Está seguro que desea continuar con el proceso de renombrado? (Y/N): ")
+    
+        if verify.lower() == 'y':
+            return True
+            
+        elif verify.lower() == 'n':
+            print("Ha decidido no continuar")
+
+            return False
+        
+        else: 
+            print("Campo inválido, debe ingresar (Y/N).")
+
+
+
 # Crea una copia de seguridad a los archivos que se van a copiar
-def backup(rute):
+def backup(rute, old_names):
     while True:
         try:
             decision = input("¿Desea crear una copia de seguridad de los archivos antes de renombrarlos? (Y/N): ").lower()
 
             if decision.lower() == "y":
                 try:
+                    # Tema de las fechas
                     now = datetime.now()
                     formated_now = now.strftime("backup %d-%m-%Y %H-%M")
-                    copied_rute = os.path.join(rute, formated_now)
-                    copied_files = shutil.copytree(rute, copied_rute)
+                    backup_rute = os.path.join(rute,formated_now)
+
+                    # Cógigo principal del backup
+                    os.makedirs(backup_rute, exist_ok=True)
+
+                    for file in old_names:
+                        final_rute = os.path.join(rute, old_names[file])
+                        
+                        shutil.copy2(final_rute, backup_rute)
 
                     return
 
@@ -117,25 +147,6 @@ def backup(rute):
         except Exception as e:
             print(f"Error desconocido: {e}") 
 
-
-
-# Verificación para el usuario
-def verify(rute, name):
-    while True:
-        print(f"Usted va a cambiar los nombres de la ruta {rute} a {name}.")
-        verify = input("¿Está seguro que desea continuar con el proceso de renombrado? (Y/N): ")
-    
-        if verify.lower() == 'y':
-            return True
-            
-        elif verify.lower() == 'n':
-            print("Ha decidido no continuar")
-
-            return False
-        
-        else: 
-            print("Campo inválido, debe ingresar (Y/N).")
-           
 
 
 # Función para transformar la función de comparación de StrCmpLogicalW
@@ -188,7 +199,7 @@ def main():
         if verify(rute, name):
             break
     
-    backup(rute)
+    backup(rute, old_names)
     old_names_sorted = sort_natural(old_names)
     rename_archives(rute, name, old_names_sorted, start, end)
 
