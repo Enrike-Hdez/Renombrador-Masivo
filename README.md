@@ -1,4 +1,4 @@
-# Renombrador Masivo (Windows) — v0.4.2
+# Renombrador Masivo (Windows) — v0.4.3
 
 ¡Bienvenido! Este proyecto `Renombrador Masivo` es un script en Python diseñado para renombrar varios archivos en una carpeta con un nombre estándar y numeración secuencial, preservando las extensiones.
 

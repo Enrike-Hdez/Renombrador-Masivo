@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
@@ -17,7 +17,7 @@ def get_user_input():
             if rute.exists():
                 return rute, name
             
-            print("Ha ocurrido un error al ingresar la ruta")
+            print("La ruta ingresada no existe.")
 
         except Exception as e:
             print(f"Error desconocido: {e}")
@@ -31,7 +31,7 @@ def get_archives(rute):
 
         return old_names
         
-    except Exception as e:
+    except Exception as e: 
         print(f"Error al obtener los archivos: {e}")
         return[]
 
@@ -120,8 +120,8 @@ def backup(rute, old_names):
                     # Cógigo principal del backup
                     os.makedirs(backup_rute, exist_ok=True)
 
-                    for file in old_names:
-                        final_rute = os.path.join(rute, old_names[file])
+                    for i in range(len(old_names)):
+                        final_rute = os.path.join(rute, old_names[i])
                         
                         shutil.copy2(final_rute, backup_rute)
 
