@@ -1,4 +1,4 @@
-# Renombrador Masivo (Windows) — v0.4.3
+# Renombrador Masivo (Windows) — v0.4.4
 
 ¡Bienvenido! Este proyecto `Renombrador Masivo` es un script en Python diseñado para renombrar varios archivos en una carpeta con un nombre estándar y numeración secuencial, preservando las extensiones.
 
@@ -15,8 +15,10 @@ Este script nació para normalizar colecciones de archivos (por ejemplo cómics,
 - Filtra solo los archivos (ignora carpetas) en la ruta especificada.
 - Ordena los archivos en orden natural (1, 2, 10 en vez de 1, 10, 2) usando `StrCmpLogicalW` de Windows.
 - Ofrece la opción de crear una copia de seguridad de la carpeta antes de renombrar.
-- Renombra cada archivo a: `NombreBase #<número><ext>` (preservando la extensión original del archivo).
-- Si el nuevo nombre ya existe, omite ese archivo y continúa con los demás.
+- Renombra los archivos en dos pasos para evitar conflictos de nombre:
+  1. `original -> temporal`
+  2. `temporal -> final`
+- Los archivos finales tienen formato `NombreBase #<número><ext>`.
 - Pregunta al usuario si desea continuar antes de ejecutar el renombrado.
 
 ## 🖥️ Requisitos
@@ -40,18 +42,17 @@ python renombrador.py
      - Si eliges `1`, se numeran todos los archivos empezando en `1`.
      - Si eliges `2`, se te pedirá el número de inicio y el número final para la numeración.
    - `¿Desea crear una copia de seguridad de los archivos antes de renombrarlos? (Y/N):` para crear una carpeta de respaldo con timestamp.
-   - `¿Desea continuar con el proceso de renombrado? (s/n):` para confirmar la ejecución.
+   - `¿Está seguro que desea continuar con el proceso de renombrado? (Y/N):` para confirmar la ejecución.
 
 4. El script renombrará los archivos existentes en la carpeta indicada con nombre y numeración secuencial.
 
 ## 🧠 Consideraciones
 
 - Se valida que el inicio sea menor o igual al final y que ambos sean enteros no negativos.
-- Se valida también que el número final no supere la cantidad de archivos disponibles.
 - Si se elige un rango menor que la cantidad total de archivos, el script renombra solo hasta ese número y se detiene.
 - Si la ruta no existe, el script muestra un mensaje y finaliza.
 - La copia de seguridad crea una carpeta con el formato `backup DD-MM-YYYY HH-MM` dentro de la carpeta original.
-- Si el nuevo nombre de archivo ya existe, se omite ese archivo y continúa con el siguiente.
-- Si ocurre un error en `os.rename`, mostrará la excepción y no abortará en esa iteración.
+- El renombrado usa nombres temporales primero para evitar colisiones entre archivos.
+- Si ocurre un error en `os.rename`, se mostrará la excepción y el proceso puede detenerse.
 
 ---

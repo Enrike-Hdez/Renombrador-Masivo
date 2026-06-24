@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
@@ -166,22 +166,33 @@ def sort_natural(old_names):
 # Renombrando los archivos
 def rename_archives(rute, name, old_names_sorted, start, end):
     try:
-        for i in range(len(old_names_sorted)):         
+        temp = []
+        
+        # Creando nombres temporales para evitar conflictos de nombres al renombrar los archivos
+        for i in range(len(old_names_sorted)):       
 
             if (i + start) > end:
-                print("Se ha alcanzado el número final para la numeración.")
-                return
+                break  
+            
+            tem_name = datetime.now().strftime("temp %H-%M-%S superman batman robin spiderman")
+            ext = os.path.splitext(old_names_sorted[i])[1]
+            new_name = f"{tem_name} #{i+start}{ext}"
+            new_path = os.path.join(rute, new_name)
+
+            temp.append(new_path)
+            os.rename(os.path.join(rute, old_names_sorted[i]), new_path)
+
+        # Renombrando los archivos con los nombres finales
+        for i in range(len(old_names_sorted)):     
+
+            if (i + start) > end:
+                break    
 
             ext = os.path.splitext(old_names_sorted[i])[1]
             new_name = f"{name} #{i+start}{ext}"
             new_path = os.path.join(rute, new_name)
 
-            if os.path.exists(new_path):
-                print(f"El archivo '{new_name}' ya existe. No se puede renombrar.")
-                continue
-                    
-            else:
-                os.rename(os.path.join(rute, old_names_sorted[i]), new_path)
+            os.rename(os.path.join(rute, temp[i]), new_path)
                     
     except Exception as e:
         print(f"Error al renombrar los archivos: {e}")
