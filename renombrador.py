@@ -5,14 +5,20 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
+    invalid_caracters = set('<>:"/\\|?*')
+
     while True:
         try:
             rute = Path(input("Ingrese la ruta donde se encuentran los archivos: "))
             name = input("Ingrese el nombre que desea para los archivos: ")
+
+            if any(char in invalid_caracters for char in name):
+                print("El nombre ingresado contiene caracteres inválidos. Por favor, ingrese un nombre válido.")
+                continue
 
             if rute.exists():
                 return rute, name
