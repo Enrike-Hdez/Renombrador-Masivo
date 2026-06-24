@@ -9,7 +9,7 @@ __version__ = "0.4.5"
 
 # Obtener la ruta y el nombre para los documentos del usuario
 def get_user_input():
-    invalid_caracters = set('<>:"/\\|?*')
+    invalid_caracters = set('<>:"/\|?*')
 
     while True:
         try:
