@@ -3,14 +3,31 @@ import ctypes
 import functools
 import shutil
 import tkinter as tk
+from tkinter.messagebox import showinfo, showerror, askyesno, showwarning
 from tkinter import filedialog
 from tkinter import ttk
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "5.0.0"
+__version__ = "1.0.0"
 
 # Zona de funciones
+# Función que compureba que el nombre ingresado no contiene carácteres inválidos
+def invalid_character(text):
+    characters = ['<','>',':','"','/',"\\",'|','?','*']
+
+    if text is None:
+        return False
+
+    if any(char in characters for char in text):
+        showwarning(title="Campo inválido",
+                    message=f"No puede tener ese carácter, asegurarse que no se encuentre en la siguiente lista: {characters}")
+        return True
+
+    return False
+
+
+
 # Obtener los nombres de los archivos en la ruta dada filtando sólo los archivos
 def get_archives(rute):
     try:
@@ -19,7 +36,8 @@ def get_archives(rute):
         return old_names
         
     except Exception as e: 
-        print(f"Error al obtener los archivos: {e}")
+        showerror(title="Eroor",
+                  message=f"Error al obtener los archivos: {e}")
         return[]
 
 
@@ -27,7 +45,8 @@ def get_archives(rute):
 # Verificar que el rango de numeración sea correcto
 def check_range(start, end, old_names):
         if start > end or start < 0 or end < 0 or end - start >= len(old_names):
-            print("El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
+            showwarning(title="Campo inválido",
+                        message="El número de inicio debe ser menor o igual al número final y debe coincidir con la cantidad de archivos.")
 
             return False
 
@@ -55,14 +74,16 @@ def backup(rute, old_names):
             return
 
         except FileNotFoundError:
-            print("Error: El archivo de origen no fue encontrado.")
+            showwarning(title="Campo inválido",
+                        message="Error: El archivo de origen no fue encontrado.")
         
         except PermissionError:
-            print("Error: Permiso denegado.")
+            showerror(title="Error",
+                      message="Error: Permiso denegado.")
 
         except Exception as e:
-            print(f"Ocurrió un error inesperado: {e}")
-
+            showerror(title="Error",
+                      message=f"Ocurrió un error inesperado: {e}")
 
 
 
@@ -79,12 +100,30 @@ def sort_natural(old_names):
     return old_names_sorted
 
 
+def check_existing_targets(rute, name, old_names_sorted, start, end, delimiter):
+    for i in range(len(old_names_sorted)):
+        current_num = i + start
+
+        if current_num > end:
+            break
+
+        old_name = old_names_sorted[i]
+        ext = os.path.splitext(old_name)[1]
+        target_name = f"{name}{delimiter}{current_num}{ext}"
+        target_path = os.path.join(rute, target_name)
+
+        if os.path.exists(target_path) and target_name != old_name:
+            return target_name
+
+    return None
+
 
 # Renombrando los archivos
 def rename_archives(rute, name, old_names_sorted, start, end, delimiter):
     try:
         temp = []
         final_names = []
+        records = []
         
         # Creando nombres temporales para evitar conflictos de nombres al renombrar los archivos
         for i in range(len(old_names_sorted)):       
@@ -112,12 +151,13 @@ def rename_archives(rute, name, old_names_sorted, start, end, delimiter):
             os.rename(os.path.join(rute, temp[i]), new_path)
 
             final_names.append(new_name)
-            print(old_names_sorted[i] + " -> " + final_names[i])
+            records.append((old_names_sorted[i], final_names[i]))
             
-        return final_names
+        return records
                     
     except Exception as e:
-        print(f"Error al renombrar los archivos: {e}")
+        showerror(title="Error",
+            message=f"Error al renombrar los archivos: {e}")
 
 
 
@@ -143,22 +183,9 @@ def create_gui():
 
     root.geometry(f"{width}x{height}+{position_x}+{position_y}")    
 
+
+
     # Funciones para los botones
-    def clear_records():
-        record_text.delete("1.0", tk.END)
-
-    def write_name():
-        name = name_entry.get()
-        record_text.insert(tk.END, f"Nombre ingresado: {name}\n")
-
-    # Funciones para establecer limites de caracteres en las cajas de texto
-    def limit_entry(entry, limit):
-        def on_write(*args):
-            value = entry.get()
-            if len(value) > limit:
-                entry.set(value[:limit])
-        entry.trace("w", on_write)        
-
     # Función principal del delimitador
     def get_delimiter():
         delimiter = delimiter_combo.get()
@@ -174,6 +201,8 @@ def create_gui():
         else:
             return delimiter
 
+
+
     # Función que activa el modo de texto libre al seleccionar "Otro"
     def other_options(event=None):
         if delimiter_combo.get() == "Otro":
@@ -182,7 +211,55 @@ def create_gui():
             delimiter_combo.focus()
         else:
             delimiter_combo.config(state="readonly")
-            
+
+
+
+    def register_or_close(total):
+        return askyesno(title="Renombrador Masivo",
+                 message=f"Se han renombrado correctamente {total} archivos.\n¿Desea abrir el registro?")
+
+
+
+    # Función que crea una ventana secundaria y mostrar el registro en ella
+    def show_register(records, old_names_sorted, name, start_num, end_num, delimiter):
+        log_window = tk.Toplevel()
+        log_window.title("Registro")
+        log_window.geometry("600x400")
+
+        log_frame = tk.Frame(log_window)
+        log_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        log_text = tk.Text(log_frame, wrap="word", state="normal")
+        log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = tk.Scrollbar(log_frame, command=log_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        log_text.configure(yscrollcommand=scrollbar.set)
+
+        display_records = []
+
+        if records:
+            display_records = records
+        else:
+            for i in range(len(old_names_sorted)):
+                current_num = i + start_num
+
+                if current_num > end_num:
+                    break
+
+                old_name = old_names_sorted[i]
+                ext = os.path.splitext(old_name)[1]
+                new_name = f"{name}{delimiter}{current_num}{ext}"
+                display_records.append((old_name, new_name))
+
+        if display_records:
+            for old_name, new_name in display_records:
+                log_text.insert(tk.END, f"{old_name} -> {new_name}\n")
+        else:
+            log_text.insert(tk.END, "No se generaron registros.")
+
+        log_text.config(state="disabled")
+
 
 
     # Función start
@@ -193,16 +270,34 @@ def create_gui():
         end_value = second_n_range_entry.get().strip()
         delimiter = get_delimiter()
 
-        try:
-            start_num = int(start_value)
-            end_num = int(end_value)
-        except ValueError:
-            print("Error: Inicio y final deben ser números enteros.")
+        if invalid_character(name):
+            return
+        
+        if invalid_character(delimiter):
             return
 
         old_names = get_archives(rute)
         if not old_names:
-            print("Error: No se encontraron archivos en la ruta.")
+            showwarning(title="Campo inválido",
+                        message="Error: Asegúrese que la ruta sea correcta.")
+        
+            return
+
+        if not start_value:
+            print("Hola")
+            start_value = 1
+
+        if not end_value:
+            end_value = len(old_names)
+
+        try:
+            start_num = int(start_value)
+            end_num = int(end_value)
+
+        except ValueError:
+            showwarning(title="Campo inválido",
+                        message="Error: Inicio y final deben ser números enteros.")
+            
             return
 
         if not check_range(start_num, end_num, old_names):
@@ -212,7 +307,19 @@ def create_gui():
             backup(rute, old_names)
 
         old_names_sorted = sort_natural(old_names)
-        rename_archives(rute, name, old_names_sorted, start_num, end_num, delimiter)
+        conflict_name = check_existing_targets(rute, name, old_names_sorted, start_num, end_num, delimiter)
+
+        if conflict_name:
+            showwarning(title="Campo inválido",
+                        message=f"No se puede renombrar porque ya existe el archivo: {conflict_name}")
+            return
+
+        records = rename_archives(rute, name, old_names_sorted, start_num, end_num, delimiter)
+        want_register = register_or_close((end_num - start_num) + 1)
+
+        if want_register:
+            show_register(records, old_names_sorted, name, start_num, end_num, delimiter)
+        
 
 
     # Cajas o contenedores 
@@ -224,9 +331,9 @@ def create_gui():
 
     # Etiqueas 
     name_and_rute_label = tk.Label(principal_frame,
-                                    text="Ruta-Nombre",
-                                    font=("Segoe UI", 16),
-                                    bg="#e8e8e8")
+                                   text="Ruta-Nombre",
+                                   font=("Segoe UI", 16),
+                                   bg="#e8e8e8")
                         
     path_label = tk.Label(principal_frame,
                           text="Ruta",
@@ -239,9 +346,9 @@ def create_gui():
                           bg="#e8e8e8")
 
     preferences_label = tk.Label(preferences_frame,
-                           text="Preferencias",
-                           font=("Segoe UI", 16),
-                           bg="#e8e8e8")
+                                 text="Preferencias",
+                                 font=("Segoe UI", 16),
+                                 bg="#e8e8e8")
 
     first_n_range_label = tk.Label(preferences_frame,
                                   text="Inicio:",
@@ -249,15 +356,15 @@ def create_gui():
                                   bg="#e8e8e8")
 
     second_n_range_label = tk.Label(preferences_frame,
-                                  text="Final:",
-                                  font=("Segoe UI", 12),
-                                  bg="#e8e8e8")
+                                    text="Final:",
+                                    font=("Segoe UI", 12),
+                                    bg="#e8e8e8")
     
 
     range_label = tk.Label(preferences_frame,
-                            text="Seleccione el rango (ALL para todo)",
-                            font=("Segoe UI", 12),
-                            bg="#e8e8e8")
+                           text="Seleccione el rango (Dejar vacío implica selccionar todo)",
+                           font=("Segoe UI", 12),
+                           bg="#e8e8e8")
 
     delimiter_label = tk.Label(preferences_frame,
                                text="Delimitador",
@@ -270,9 +377,9 @@ def create_gui():
                             bg="#e8e8e8")
 
     selecction_backup_label = tk.Label(backup_frame,
-                            text="Marque la casilla si desea crear una copia de seguridad",
-                            font=("Segoe UI", 12),
-                            bg="#e8e8e8")
+                              text="Marque la casilla si desea crear una copia de seguridad",
+                              font=("Segoe UI", 12),
+                              bg="#e8e8e8")
 
     bottom_label = tk.Label(bottom_frame,
                             text="Ejecución",
@@ -294,30 +401,13 @@ def create_gui():
                             command=start)
 
     examine_button = tk.Button(text="Examinar",
-                            font=("Segoe UI", 12),
-                            relief="flat",
-                            bd=1,
-                            fg="#1a1a1a",
-                            bg="#cccccc",
-                            command=lambda: path_entry.insert(0, filedialog.askdirectory()))
-    
-    show_more_button = tk.Button(text="Mostrar más",
-                                font=("Segoe UI", 12),
-                                relief="solid",
-                                bd=1,
-                                state="disabled")
-    
-    hidden_button = tk.Button(text="Ocultar",
-                              font=("Segoe UI", 12),
-                              relief="solid",
-                              bd=1)
-    
-    clear_button = tk.Button(text="Eliminar",
-                            font=("Segoe UI", 12),
-                            relief="solid",
-                            bd=1,
-                            command=clear_records)
-    
+                               font=("Segoe UI", 12),
+                               relief="flat",
+                               bd=1,
+                               fg="#1a1a1a",
+                               bg="#cccccc",
+                               command=lambda: path_entry.insert(0, filedialog.askdirectory()))
+
 
     # Cajas de texto
     path_entry = tk.Entry(principal_frame,
@@ -335,7 +425,7 @@ def create_gui():
                         fg="#4d4d4d",
                         bg="#fafafa",
                         bd=1)
-    
+
     first_n_range_entry = tk.Entry(preferences_frame,
                             width=5,
                             font=("Arial", 11),
@@ -351,13 +441,6 @@ def create_gui():
                             fg="#4d4d4d",
                             bg="#fafafa",
                             bd=1)
-
-    record_text = tk.Text(root,
-                        width=60,
-                        height=5,
-                        font=("Arial", 10),
-                        relief="flat",
-                        bd=1)
 
 
     # Combobox
@@ -389,6 +472,7 @@ def create_gui():
     preferences_frame.grid(row=1, column=0, sticky="nsew")
     backup_frame.grid(row=2, column=0, sticky="nsew")
     bottom_frame.grid(row=3, column=0, sticky="nsew")
+
 
     # Mostrando los elementos
     name_and_rute_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=10, pady=3)
@@ -426,8 +510,6 @@ def create_gui():
 
 
 
-
-
     # Especificaciones del comporamiento de las cajas o contenedores
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=3)
@@ -439,10 +521,12 @@ def create_gui():
     # Bucle principal
     root.mainloop()    
 
+
+
+
+
 def main():
     create_gui()
 
 if __name__ == "__main__":
     main()
-
-#invalid_caracters = set('<>:"/\\|?*')

@@ -1,10 +1,10 @@
-# Renombrador Masivo (Windows) — v5.0.0
+# Renombrador Masivo (Windows) — v1.0.0
 
 ¡Bienvenido! Este proyecto ofrece una herramienta en Python para renombrar varios archivos de una carpeta con un nombre base y numeración secuencial, manteniendo sus extensiones.
 
 ## 📝 Contexto
 
-Este script está pensado para normalizar colecciones de archivos como cómics, fotos o documentos cuando sus nombres no siguen un patrón uniforme. En lugar de renombrarlos uno por uno, lo hace de forma automática y ordenada.
+Este proyecto está pensado para normalizar colecciones de archivos como cómics, fotos o documentos cuando sus nombres no siguen un patrón uniforme. En lugar de renombrarlos uno por uno, lo hace de forma automática y ordenada.
 
 ## 🔧 Qué hace
 
@@ -23,10 +23,23 @@ Este script está pensado para normalizar colecciones de archivos como cómics, 
 ## 🖥️ Requisitos
 
 - Windows
-- Python 3.x
+- Python 3.x (solo si vas a ejecutar el script desde código)
 - Tkinter incluido con la instalación estándar de Python
 
 ## ▶️ Uso
+
+### Opción 1: Ejecutable
+
+1. Ejecuta el archivo `renombrador.exe` en cualquier equipo con Windows.
+2. En la ventana:
+   - Completa la ruta de la carpeta o usa el botón Examinar.
+   - Escribe el nombre base que quieres usar.
+   - Define el rango de numeración en Inicio y Final.
+   - Elige un delimitador si lo deseas.
+   - Marca la opción de copia de seguridad si quieres crear un respaldo.
+   - Haz clic en Iniciar.
+
+### Opción 2: Desde Python
 
 1. Coloca el archivo `renombrador.py` en la ubicación que prefieras.
 2. Abre una terminal y ejecuta:
@@ -35,15 +48,7 @@ Este script está pensado para normalizar colecciones de archivos como cómics, 
 python renombrador.py
 ```
 
-3. En la ventana:
-   - Completa la ruta de la carpeta o úsalo botón Examinar.
-   - Escribe el nombre base que quieres usar.
-   - Define el rango de numeración en Inicio y Final.
-   - Elige un delimitador si lo deseas.
-   - Marca la opción de copia de seguridad si quieres crear un respaldo.
-   - Haz clic en Iniciar.
-
-4. El script renombrará los archivos de la carpeta seleccionada con el formato indicado.
+3. Sigue los mismos pasos de la interfaz.
 
 ## 🧠 Consideraciones
 
@@ -51,5 +56,8 @@ python renombrador.py
 - Si el rango es menor que el total de archivos, solo se renombrarán los archivos incluidos en ese intervalo.
 - La copia de seguridad se crea en una carpeta con el formato `backup DD-MM-YYYY HH-MM` dentro de la carpeta original.
 - El renombrado usa nombres temporales intermedios para evitar colisiones entre archivos.
+- Si un nombre final ya existe, la herramienta muestra una advertencia para evitar sobrescribir archivos.
 
 ---
+
+Mejoras en algún futuro improvable
