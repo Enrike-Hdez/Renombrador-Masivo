@@ -191,11 +191,17 @@ def create_gui():
         delimiter = delimiter_combo.get()
 
         if delimiter == "#":
-            return "#"
+            return " #"
+        elif delimiter == "-":
+            return " -"
+        elif delimiter == "_":
+            return " _"
         elif delimiter == "ESPACIO":
             return " "
         elif delimiter == "ESPACIO + .":
             return " ."
+        elif delimiter == ".":
+            return =="."
         elif delimiter == "Otro":
             return delimiter_combo.get()
         else:
