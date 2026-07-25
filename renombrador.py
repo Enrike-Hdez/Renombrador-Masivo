@@ -3,11 +3,10 @@ import ctypes
 import functools
 import shutil
 import tkinter as tk
-from tkinter.messagebox import showinfo, showerror, askyesno, showwarning
+from tkinter.messagebox import showerror, askyesno, showwarning
 from tkinter import filedialog
 from tkinter import ttk
 from datetime import datetime
-from pathlib import Path
 
 __version__ = "1.0.0"
 
@@ -290,7 +289,6 @@ def create_gui():
             return
 
         if not start_value:
-            print("Hola")
             start_value = 1
 
         if not end_value:
