@@ -1,4 +1,4 @@
-('C:\\Users\\Enrique\\Workspace\\Renombrador '
+('C:\\Users\\enriq\\Workspace\\Renombrador '
  'Masivo\\build\\renombrador\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\Enrique\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\__future__.py',
