@@ -8,7 +8,7 @@ from tkinter import filedialog
 from tkinter import ttk
 from datetime import datetime
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 # Zona de funciones
 # Función que compureba que el nombre ingresado no contiene carácteres inválidos
@@ -38,6 +38,28 @@ def get_archives(rute):
         showerror(title="Eroor",
                   message=f"Error al obtener los archivos: {e}")
         return[]
+
+
+    
+# Obteniendo el rango 
+def get_range(start_value, end_value, old_names):
+    if not start_value and not end_value:
+        start_value = 1
+        end_value = len(old_names)
+
+    elif start_value and not end_value:
+            end_value = len(old_names) + int(start_value) - 1
+
+    elif not start_value and end_value:
+            start_value = 1
+
+    try:
+        return int(start_value), int(end_value)
+
+    except ValueError:
+                showwarning(title="Campo inválido",
+                            message="Error: Inicio y final deben ser números enteros.")
+                return None, None
 
 
 
@@ -214,11 +236,13 @@ def create_gui():
             delimiter_combo.set("#")
             delimiter_combo.config(state="normal")
             delimiter_combo.focus()
+
         else:
             delimiter_combo.config(state="readonly")
 
 
 
+    # Función de acceso al registro
     def register_or_close(total):
         return askyesno(title="Renombrador Masivo",
                  message=f"Se han renombrado correctamente {total} archivos.\n¿Desea abrir el registro?")
@@ -282,27 +306,14 @@ def create_gui():
             return
 
         old_names = get_archives(rute)
+        
         if not old_names:
             showwarning(title="Campo inválido",
                         message="Error: Asegúrese que la ruta sea correcta.")
         
             return
 
-        if not start_value:
-            start_value = 1
-
-        if not end_value:
-            end_value = len(old_names)
-
-        try:
-            start_num = int(start_value)
-            end_num = int(end_value)
-
-        except ValueError:
-            showwarning(title="Campo inválido",
-                        message="Error: Inicio y final deben ser números enteros.")
-            
-            return
+        start_num, end_num = get_range(start_value, end_value, old_names)
 
         if not check_range(start_num, end_num, old_names):
             return
